@@ -13,13 +13,16 @@ class Search(object):
         self.command = command
         with open(self.command + '.json', encoding='UTF-8') as fh:
            self.data = json.load(fh)
+        with open(self.command + '_types.json', encoding='UTF-8') as fh:
+           self.types = json.load(fh)
         self.query = query
         self.parsed = ''
         self.item = {}
         self.itemTypes = []
         self.parseQuery()
         self.parseItem()
-        print(self.itemTypes)
+        #print(self.item)
+        print(self.types)
     def parseQuery(self):
         for i in range(len(self.query)):
             if i == len(self.query) - 1:
@@ -28,20 +31,22 @@ class Search(object):
                 self.parsed += self.query[i] + ' '
         
     def parseItem(self):
+        tokens = []
         for i in range(len(self.data['compendium'][self.command])):
             '''
             for j in range(len(self.data['compendium'][self.command][i])):
                 if list(self.data['compendium'][self.command][i].keys())[j] == 'type':
-                    for k in range(len(self.data['compendium'][self.command][i]['type'])):
-                        if self.data['compendium'][self.command][i]['type'] not in self.itemTypes:
-                            print(self.data['compendium'][self.command][i]['type'][k])
-                            self.itemTypes += str(self.data['compendium'][self.command][i]['type'][k])
+                    tokens = messageTokenizor(self.data['compendium'][self.command][i]['type'])
+                    for k in range(len(tokens)):
+                        if tokens[k] not in self.itemTypes:
+                            self.itemTypes.append(tokens[k])
             #print(self.data['compendium'][command][i][list(self.data['compendium'][command][i].keys())[0]])
-            '''
-            if self.parsed == self.data['compendium'][self.command][i][list(self.data['compendium'][self.command][i].keys())[0]]:
+                            '''
+            if self.parsed.lower() == self.data['compendium'][self.command][i][list(self.data['compendium'][self.command][i].keys())[0]].lower():
                 self.item = self.data['compendium'][self.command][i]
 
     def message(self):
+        tokens = []
         embed=discord.Embed(title='**'+ self.item[list(self.item.keys())[0]] + '**', color=0x0ee796)
         for i in range(len(self.item)):
             if list(self.item.keys())[i] == 'text':
@@ -50,7 +55,17 @@ class Search(object):
                     if str(self.item[list(self.item.keys())[i]][j]) != 'None':
                         description += ':small_orange_diamond:' + self.item[list(self.item.keys())[i]][j] + '\n'
                 embed.add_field(name='Description', value=description, inline=True)
-            if i != 0 and list(self.item.keys())[i] != 'text':
+            if list(self.item.keys())[i] == 'type':
+                types = str()
+                tokens = messageTokenizor(self.data['compendium'][self.command][i]['type'])
+                for j in range(len(tokens)):
+                    if token[j] in list(self.types.keys()):
+                        types += self.types[token[j]]
+                print('######HERE########')
+                print(types)
+                print('######HERE########')
+                embed.add_field(name='Types', value=types, inline=False)
+            if i != 0 and list(self.item.keys())[i] != 'text' and list(self.item.keys())[i] != 'type':
                 embed.add_field(name=list(self.item.keys())[i], value=':crossed_swords:' + str(self.item[list(self.item.keys())[i]]), inline=True)
         return embed   
 
