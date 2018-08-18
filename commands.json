@@ -1,0 +1,5 @@
+{
+  "commands":[
+  "item", "class", "spell", "condition", "feat","monster","race","race_feature", "class_feature", "rule", "character", "monster_ToB", "reward"
+  ]
+}
